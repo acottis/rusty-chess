@@ -189,6 +189,16 @@ impl Board {
         };
     }
 
+    pub fn check(&self){
+
+        for (x, col) in self.grid.iter().enumerate() {
+            for (y, row) in col.iter().enumerate(){
+                println!("{}", row);
+            }
+        }
+
+    }
+
     // Returns a list of valid King moves
     fn king_moves(&self, src: (usize, usize), colour: Colour) -> Option<Vec<(usize, usize)>> {
         let mut moves: Vec<(usize, usize)> = Vec::new();

@@ -9,30 +9,32 @@ fn main() {
 fn game_loop() {
     let mut board: Board = Board::init();
 
-    for i in 1..20 {
-        board.render();
-        if i % 2 != 0 {
-            loop {
-                println!("Whites turn:");
-                let mov: (String, String) = choose_move();
-                if board.move_piece(Colour::Light, mov.0, mov.1) == false {
-                    println!("Invalid Move!");
-                } else {
-                    break;
-                }
-            }
-        } else {
-            loop {
-                println!("Black's turn:");
-                let mov: (String, String) = choose_move();
-                if board.move_piece(Colour::Dark, mov.0, mov.1) == false {
-                    println!("Invalid Move!");
-                } else {
-                    break;
-                }
-            }
-        }
-    }
+    board.check();
+
+    // for i in 1..20 {
+    //     board.render();
+    //     if i % 2 != 0 {
+    //         loop {
+    //             println!("Whites turn:");
+    //             let mov: (String, String) = choose_move();
+    //             if board.move_piece(Colour::Light, mov.0, mov.1) == false {
+    //                 println!("Invalid Move!");
+    //             } else {
+    //                 break;
+    //             }
+    //         }
+    //     } else {
+    //         loop {
+    //             println!("Black's turn:");
+    //             let mov: (String, String) = choose_move();
+    //             if board.move_piece(Colour::Dark, mov.0, mov.1) == false {
+    //                 println!("Invalid Move!");
+    //             } else {
+    //                 break;
+    //             }
+    //         }
+    //     }
+    // }
 }
 
 fn choose_move() -> (String, String) {
