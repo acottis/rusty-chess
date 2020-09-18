@@ -9,7 +9,7 @@ fn main() {
 fn game_loop() {
     let mut board: Board = Board::init();
 
-    for i in 1..10 {
+    for i in 1..20 {
         board.render();
         if i % 2 != 0 {
             loop {
@@ -38,9 +38,23 @@ fn game_loop() {
 fn choose_move() -> (String, String) {
     let mut src = String::new();
     let mut dst = String::new();
+    let mut n:usize;
 
-    io::stdin().read_line(&mut src).expect("Bad input");
-    io::stdin().read_line(&mut dst).expect("Bad input");
-
+    println!("Src:");
+    loop {
+        n = io::stdin().read_line(&mut src).unwrap();
+        if n == 3 {
+            break;
+        }
+        println!("Invalid source");
+    }
+    println!("Dst:");
+    loop {
+        n = io::stdin().read_line(&mut dst).unwrap();
+        if n == 3 {
+            break;
+        }
+        println!("Invalid destination");
+    }
     (src, dst)
 }

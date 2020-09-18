@@ -107,8 +107,8 @@ impl Board {
                     Square::init(Piece::Rook, Colour::Light),
                     Square::init(Piece::Knight, Colour::Light),
                     Square::init(Piece::Bishop, Colour::Light),
-                    Square::init(Piece::King, Colour::Light),
                     Square::init(Piece::Queen, Colour::Light),
+                    Square::init(Piece::King, Colour::Light),
                     Square::init(Piece::Bishop, Colour::Light),
                     Square::init(Piece::Knight, Colour::Light),
                     Square::init(Piece::Rook, Colour::Light),
@@ -123,8 +123,8 @@ impl Board {
                     Square::init(Piece::Rook, Colour::Dark),
                     Square::init(Piece::Knight, Colour::Dark),
                     Square::init(Piece::Bishop, Colour::Dark),
-                    Square::init(Piece::King, Colour::Dark),
                     Square::init(Piece::Queen, Colour::Dark),
+                    Square::init(Piece::King, Colour::Dark),
                     Square::init(Piece::Bishop, Colour::Dark),
                     Square::init(Piece::Knight, Colour::Dark),
                     Square::init(Piece::Rook, Colour::Dark),
@@ -184,22 +184,62 @@ impl Board {
             Piece::Bishop => return self.bishop_moves(src, piece_colour).unwrap().contains(&dst),
             Piece::Rook => return self.rook_moves(src, piece_colour).unwrap().contains(&dst),
             Piece::Queen => return self.queen_moves(src, piece_colour).unwrap().contains(&dst),
-            // Piece::King => println!("King move"),
+            Piece::King => return self.king_moves(src, piece_colour).unwrap().contains(&dst),
             _ => return false,
         };
     }
 
-fn queen_moves(&self, src: (usize, usize), colour: Colour) -> Option<Vec<(usize,usize)>>{
-    let mut moves: Vec<(usize,usize)> = Vec::new();
+    // Returns a list of valid King moves
+    fn king_moves(&self, src: (usize, usize), colour: Colour) -> Option<Vec<(usize, usize)>> {
+        let mut moves: Vec<(usize, usize)> = Vec::new();
+        let mut legal_moves : Vec<(usize, usize)> = Vec::new();
 
-    Some(moves)
-}
+        for x in 0..3 {
+            for y in 0..3 {
+                if 
+                src.1 + 1 >= x && 
+                src.0 + 1 >= y && 
+                src.1 + 1 + x < self.grid.len() && 
+                src.0 + 1 + y < self.grid.len()  
+                {
+                    moves.push((src.0 + 1 - y, src.1 + 1 - x));
+                }
+            }
+        }
+
+        // Filter out illegal moves - checks for same colour peices
+        for mov in moves{
+            if self.grid[mov.0][mov.1].colour != colour{
+                legal_moves.push(mov);
+            }
+        }
+
+        println!("Legal King moves {:?}", legal_moves);
+        Some(legal_moves)
+    }
+
+    // Return a list of valid queen moves
+    fn queen_moves(&self, src: (usize, usize), colour: Colour) -> Option<Vec<(usize, usize)>> {
+        let mut moves: Vec<(usize, usize)> = Vec::new();
+
+        let rook_moves = self.rook_moves(src, colour).unwrap();
+        let bishop_moves = self.bishop_moves(src, colour).unwrap();
+
+        for mov in rook_moves {
+            moves.push(mov);
+        }
+        for mov in bishop_moves {
+            moves.push(mov);
+        }
+
+        Some(moves)
+    }
 
     // Return a list of valid rook moves for a given square
     fn rook_moves(&self, src: (usize, usize), colour: Colour) -> Option<Vec<(usize, usize)>> {
         let mut moves: Vec<(usize, usize)> = Vec::new();
 
-        // Vertical
+        // Vertical +
         for (i, _) in self.grid.iter().enumerate() {
             if i == 0 {
                 continue;
@@ -212,7 +252,6 @@ fn queen_moves(&self, src: (usize, usize), colour: Colour) -> Option<Vec<(usize,
 
             // Check for white pieces
             if self.grid[src.0 + i][src.1].colour == colour {
-                println!("{:?} piece blocking", colour);
                 break;
             }
 
@@ -226,7 +265,33 @@ fn queen_moves(&self, src: (usize, usize), colour: Colour) -> Option<Vec<(usize,
             }
         }
 
-        // Horizontal
+        // Vertical -
+        for (i, _) in self.grid.iter().enumerate() {
+            if i == 0 {
+                continue;
+            }
+
+            // Checks for out of bounds
+            if src.0 < i {
+                break;
+            }
+
+            // Check for white pieces
+            if self.grid[src.0 - i][src.1].colour == colour {
+                break;
+            }
+
+            moves.push((src.0 - i, src.1));
+
+            // If a black peice is there stop
+            if self.grid[src.0 - i][src.1].colour != colour
+                && self.grid[src.0 - i][src.1].colour != Colour::None
+            {
+                break;
+            }
+        }
+
+        // Horizontal +
         for (i, _) in self.grid.iter().enumerate() {
             if i == 0 {
                 continue;
@@ -239,7 +304,6 @@ fn queen_moves(&self, src: (usize, usize), colour: Colour) -> Option<Vec<(usize,
 
             // Check for white pieces
             if self.grid[src.0][src.1 + i].colour == colour {
-                println!("{:?} piece blocking", colour);
                 break;
             }
 
@@ -248,6 +312,32 @@ fn queen_moves(&self, src: (usize, usize), colour: Colour) -> Option<Vec<(usize,
             // If a black peice is there stop
             if self.grid[src.0][src.1 + i].colour != colour
                 && self.grid[src.0][src.1 + i].colour != Colour::None
+            {
+                break;
+            }
+        }
+
+        // Horizontal -
+        for (i, _) in self.grid.iter().enumerate() {
+            if i == 0 {
+                continue;
+            }
+
+            // Checks for out of bounds
+            if src.1 < i {
+                break;
+            }
+
+            // Check for white pieces
+            if self.grid[src.0][src.1 - i].colour == colour {
+                break;
+            }
+
+            moves.push((src.0, src.1 - i));
+
+            // If a black peice is there stop
+            if self.grid[src.0][src.1 - i].colour != colour
+                && self.grid[src.0][src.1 - i].colour != Colour::None
             {
                 break;
             }
@@ -269,13 +359,11 @@ fn queen_moves(&self, src: (usize, usize), colour: Colour) -> Option<Vec<(usize,
 
             // Checks for out of bounds squares
             if src.0 + i >= self.grid.len() || src.1 + i >= self.grid.len() {
-                println!("Out of bounds");
                 break;
             }
 
             // Check for white pieces
             if self.grid[src.0 + i][src.1 + i].colour == colour {
-                println!("{:?} piece blocking", colour);
                 break;
             }
             // adds to vector
@@ -297,15 +385,11 @@ fn queen_moves(&self, src: (usize, usize), colour: Colour) -> Option<Vec<(usize,
 
             // Checks for out of bounds squares
             if src.0 <= i - 1 || src.1 <= i - 1 {
-                println!("Out of bounds");
                 break;
             }
 
-            println!("{:?}, {:?}", src.0 - i, src.0 - i);
-
             // Check for white pieces
             if self.grid[src.0 - i][src.1 - i].colour == colour {
-                println!("{:?} piece blocking", colour);
                 break;
             }
             // adds to vector
@@ -327,13 +411,11 @@ fn queen_moves(&self, src: (usize, usize), colour: Colour) -> Option<Vec<(usize,
 
             // Checks for out of bounds squares
             if src.0 <= i - 1 || src.1 + i >= self.grid.len() {
-                println!("Out of bounds");
                 break;
             }
 
             // Check for white pieces
             if self.grid[src.0 - i][src.1 + i].colour == colour {
-                println!("{:?} piece blocking", colour);
                 break;
             }
             // adds to vector
@@ -355,13 +437,11 @@ fn queen_moves(&self, src: (usize, usize), colour: Colour) -> Option<Vec<(usize,
 
             // Checks for out of bounds squares
             if src.0 + i >= self.grid.len() || src.1 <= i - 1 {
-                println!("Out of bounds");
                 break;
             }
 
             // Check for white pieces
             if self.grid[src.0 + i][src.1 - i].colour == colour {
-                println!("{:?} piece blocking", colour);
                 break;
             }
             // adds to vector
