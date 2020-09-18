@@ -189,13 +189,58 @@ impl Board {
         };
     }
 
-    pub fn check(&self){
+    // Is it check?
+    pub fn check(&self, colour: Colour) -> bool{
+
+        let mut moves: Vec <(usize,usize)> = Vec::new();
+
+        let mut enemy_king: (usize,usize) = (0,0);
 
         for (x, col) in self.grid.iter().enumerate() {
             for (y, row) in col.iter().enumerate(){
-                println!("{}", row);
+                if row.colour == colour{
+                    match row.piece{
+                        Piece::Pawn => {
+                            for mov in self.pawn_moves((x,y), colour).unwrap(){
+                                moves.push(mov);
+                            }
+                        },
+                        Piece::Knight => {
+                            for mov in self.knight_moves((x,y), colour).unwrap(){
+                                moves.push(mov);
+                            }
+                        },
+                        Piece::Bishop => {
+                            for mov in self.bishop_moves((x,y), colour).unwrap(){
+                                moves.push(mov);
+                            }
+                        },
+                        Piece::Rook => {
+                            for mov in self.rook_moves((x,y), colour).unwrap(){
+                                moves.push(mov);
+                            }
+                        },
+                        Piece::Queen => {
+                            for mov in self.queen_moves((x,y), colour).unwrap(){
+                                moves.push(mov);
+                            }
+                        },
+                        Piece::King => {},
+                        Piece::None => {},
+                    }                  
+                }
+                if row.colour != colour && row.colour != Colour::None{
+                    if row.piece == Piece::King{ enemy_king = (x, y) }
+                }
             }
         }
+
+        println!("{:?}", enemy_king);
+        if moves.contains(&enemy_king){
+            return true
+        }
+
+        false
 
     }
 
@@ -224,7 +269,7 @@ impl Board {
             }
         }
 
-        println!("Legal King moves {:?}", legal_moves);
+        // println!("Legal King moves {:?}", &legal_moves);
         Some(legal_moves)
     }
 
@@ -353,7 +398,7 @@ impl Board {
             }
         }
 
-        println!("Rook moves: {:?}", moves);
+        // println!("Rook moves: {:?}", moves);
         Some(moves)
     }
 
@@ -465,7 +510,7 @@ impl Board {
             }
         }
 
-        println!("Bishop moves: {:?}", moves);
+        // println!("Bishop moves: {:?}", moves);
 
         Some(moves)
     }
@@ -507,7 +552,7 @@ impl Board {
             }
         }
 
-        println!("Knight moves: {:?}", moves);
+        // println!("Legal Knight moves: {:?}", moves);
         Some(moves)
     }
 
@@ -558,7 +603,7 @@ impl Board {
                 }
             }
         }
-        println!("{:?}", moves);
+        // println!("Legal pawn moves {:?}", moves);
         Some(moves)
     }
 }
